@@ -1,0 +1,7 @@
+venv
+.vscode
+postgresql-42.2.23.jar
+postgresql_5.3.1_ddl.sql
+.Rproj.user
+synthea_to_omop.nb.html
+.env

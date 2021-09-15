@@ -1,0 +1,62 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+
+ install.packages('devtools')
+ library(devtools)
+ devtools::install_github("OHDSI/ETL-Synthea", INSTALL_opts=c("--no-multiarch"))
+
+ library(ETLSyntheaBuilder)
+ library(DatabaseConnector)
+
+ # We are loading a version 5.3.1 CDM into a local PostgreSQL database called "synthea10".  
+ # The supported Synthea version is 2.7.0 or master
+ # The schema to load the Synthea tables is called "native".
+ # The schema to load the Vocabulary and CDM tables is "cdm_synthea10".  
+ # The username and pw are "postgres" and "lollipop".
+ # The Synthea and Vocabulary CSV files are located in /tmp/synthea/output/csv and /tmp/Vocabulary_20181119, respectively.
+ 
+ cd <- DatabaseConnector::createConnectionDetails(
+  dbms     = "postgresql", 
+  server   = "localhost/synthea10", 
+  user     = "postgres", 
+  password = "HDRUK2021", 
+  port     = 5432,
+  pathToDriver = "C:\\Users\\user\\Documents\\GitHub\\synthea-to-omop"
+)
+
+cdmSchema      <- "cdm_synthea10"
+cdmVersion     <- "5.3.1"
+syntheaVersion <- "2.7.0"
+syntheaSchema  <- "native"
+syntheaFileLoc <- "C:\\Users\\user\\Documents\\GitHub\\synthea-to-omop\\tmp\\synthea\\output\\csv"
+vocabFileLoc   <- "C:\\Users\\user\\Documents\\GitHub\\synthea-to-omop\\tmp\\Vocabulary_20181119"
+
+ETLSyntheaBuilder::CreateCDMTables(connectionDetails = cd, cdmSchema = cdmSchema, cdmVersion = cdmVersion)
+                                     
+ETLSyntheaBuilder::CreateSyntheaTables(connectionDetails = cd, syntheaSchema = syntheaSchema, syntheaVersion = syntheaVersion)
+                                       
+ETLSyntheaBuilder::LoadSyntheaTables(connectionDetails = cd, syntheaSchema = syntheaSchema, syntheaFileLoc = syntheaFileLoc)
+                                     
+ETLSyntheaBuilder::LoadVocabFromCsv(connectionDetails = cd, cdmSchema = cdmSchema, vocabFileLoc = vocabFileLoc)
+                                    
+ETLSyntheaBuilder::LoadEventTables(connectionDetails = cd, cdmSchema = cdmSchema, syntheaSchema = syntheaSchema, cdmVersion = cdmVersion, syntheaVersion = syntheaVersion)
+
+# Optional: Create index and constraint DDL scripts for the rdbms that support them.  Scripts will be written to the "output" directory.
+# ETLSyntheaBuilder::CreateCDMIndexAndConstraintScripts(connectionDetails = cd, cdmSchema = cdmSchema, cdmVersion = cdmVersion)
+
+
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
